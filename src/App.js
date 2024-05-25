@@ -3,6 +3,7 @@ import "./App.css";
 import Navbar from "./component/Navbar";
 import Create from "./component/create";
 import Read from "./component/Read";
+import Update from "./component/Update";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route exact path="/" element={<Create />}></Route>
           <Route exact path="/read" element={<Read />}></Route>
+          <Route exact path="/edit/:id" element={<Update />}></Route>
         </Routes>
       </BrowserRouter>
     </div>

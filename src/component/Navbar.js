@@ -1,8 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { searchUser } from "../features/userDetailsSlice";
 
 const Navbar = () => {
+  const allUsers = useSelector((state) => state.app.users);
+  const dispatch = useDispatch();
+
   const [searchData, setSearchData] = useState("");
+
+  useEffect(() => {
+    dispatch(searchUser(searchData));
+  }, [searchData]);
 
   return (
     <div>
@@ -19,7 +28,7 @@ const Navbar = () => {
               </li>
               <li className="nav-item">
                 <Link to="/read" className="nav-link">
-                  All Post
+                  All Post ({allUsers.length})
                 </Link>
               </li>
             </ul>

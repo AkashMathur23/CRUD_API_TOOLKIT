@@ -1,57 +1,111 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { showUser } from "../features/userDetailsSlice";
+import { Link } from "react-router-dom";
+import { deleteUser, showUser } from "../features/userDetailsSlice";
 import CustomModal from "./CustomModal";
 
 const Read = () => {
   const dispatch = useDispatch();
+
   const [id, setId] = useState();
 
-  /* from app we are getting user data as user and loading */ const {
-    users,
-    loading,
-  } = useSelector((state) => state.app); //getting data from store/app/useDetail/userDetailSlice
+  const [radioData, setRadioData] = useState("");
+
+  const [showPopup, setShowPopup] = useState(false);
+
+  const { users, loading, searchData } = useSelector((state) => state.app);
 
   useEffect(() => {
     dispatch(showUser());
-  }, [dispatch]);
+  }, []);
 
   if (loading) {
-    return <h2>Loading....</h2>;
+    return <h2>Loading</h2>;
   }
 
   return (
     <div>
-      <CustomModal />
-      <h1>All Data</h1>
+      {showPopup && (
+        <CustomModal
+          id={id}
+          showPopup={showPopup}
+          setShowPopup={setShowPopup}
+        />
+      )}
+      <h2>All data</h2>
+      <input
+        class="form-check-input"
+        name="gender"
+        checked={radioData === ""}
+        type="radio"
+        onChange={(e) => setRadioData("")}
+      />
+      <label class="form-check-label">All</label>
+      <input
+        class="form-check-input"
+        name="gender"
+        checked={radioData === "Male"}
+        value="Male"
+        type="radio"
+        onChange={(e) => setRadioData(e.target.value)}
+      />
+      <label class="form-check-label">Male</label>
+      <input
+        class="form-check-input"
+        name="gender"
+        value="Female"
+        checked={radioData === "Female"}
+        type="radio"
+        onChange={(e) => setRadioData(e.target.value)}
+      />
+      <label class="form-check-label">Female</label>
 
       <div>
         {users &&
-          users.map((user) => (
-            <div
-              className="card w-50 mx-auto"
-              style={{ backgroundColor: "lightGrey", display: "flex" }}
-              key={user.id}
-            >
-              <div className="card-body">
-                <h5 className="card-title">{user.id}</h5>
-                <h6 className="card-subtitle mb-2 text-body-secondary">
-                  {user.employee_name}
-                </h6>
-                <h4>{user.employee_salary}</h4>
-                <h4>{user.employee_age}</h4>
-                <div
-                  style={{ display: "flex", justifyContent: "space-evenly" }}
-                >
-                  <button className="card-link" onClick={() => setId(user.id)}>
+          users
+            .filter((ele) => {
+              if (searchData.length === 0) {
+                return ele;
+              } else {
+                return ele.name
+                  .toLowerCase()
+                  .includes(searchData.toLowerCase());
+              }
+            })
+            .filter((ele) => {
+              if (radioData === "Male") {
+                return ele.gender === radioData;
+              } else if (radioData === "Female") {
+                return ele.gender === radioData;
+              } else return ele;
+            })
+
+            .map((ele) => (
+              <div key={ele.id} className="card w-50 mx-auto my-2">
+                <div className="card-body">
+                  <h3 className="card-title">{ele.name}</h3>
+                  <h4 className="card-subtitle mb-2 text-muted">{ele.email}</h4>
+                  <h5 className="card-text">{ele.gender}</h5>
+                  <h6 className="card-text">{ele.age}</h6>
+
+                  <button
+                    className="card-link"
+                    onClick={() => [setId(ele.id), setShowPopup(true)]}
+                  >
                     View
                   </button>
-                  <button className="card-link">Edit</button>
-                  <button className="card-link">Delete</button>
+                  <Link to={`/edit/${ele.id}`} className="card-link">
+                    Edit
+                  </Link>
+                  <Link
+                    onClick={() => dispatch(deleteUser(ele.id))}
+                    className="card-link"
+                  >
+                    Delete
+                  </Link>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
       </div>
     </div>
   );
